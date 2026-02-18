@@ -1,0 +1,1197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>ReAssemble — Disassembly Documentation</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0d0d;
+    --surface: #161616;
+    --surface2: #1e1e1e;
+    --border: #2a2a2a;
+    --accent: #ff6b2b;
+    --accent2: #ffb347;
+    --text: #f0ede8;
+    --muted: #888;
+    --green: #4caf82;
+    --red: #e05252;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    max-width: 480px;
+    margin: 0 auto;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  /* Grain overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.4;
+  }
+
+  /* SCREENS */
+  .screen { display: none; flex-direction: column; min-height: 100vh; }
+  .screen.active { display: flex; }
+
+  /* TOP BAR */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 20px 16px;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+    z-index: 100;
+  }
+
+  .logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 22px;
+    letter-spacing: -0.5px;
+  }
+  .logo span { color: var(--accent); }
+
+  .back-btn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.15s;
+  }
+  .back-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* HOME SCREEN */
+  .home-hero {
+    padding: 40px 20px 24px;
+  }
+  .home-hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 38px;
+    line-height: 1.05;
+    letter-spacing: -1px;
+    margin-bottom: 12px;
+  }
+  .home-hero h1 em {
+    color: var(--accent);
+    font-style: normal;
+    display: block;
+  }
+  .home-hero p {
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.6;
+    max-width: 320px;
+  }
+
+  .new-project-btn {
+    margin: 0 20px 32px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 14px;
+    padding: 18px 24px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.2s;
+    box-shadow: 0 8px 24px rgba(255,107,43,0.3);
+    width: calc(100% - 40px);
+    justify-content: center;
+  }
+  .new-project-btn:hover { transform: translateY(-1px); box-shadow: 0 12px 32px rgba(255,107,43,0.4); }
+  .new-project-btn:active { transform: translateY(0); }
+
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    text-transform: uppercase;
+    padding: 0 20px 12px;
+  }
+
+  .projects-list { padding: 0 20px; flex: 1; }
+
+  .project-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    position: relative;
+    overflow: hidden;
+  }
+  .project-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: var(--accent);
+    border-radius: 3px 0 0 3px;
+    transform: scaleY(0);
+    transition: transform 0.2s;
+  }
+  .project-card:hover { border-color: var(--accent); transform: translateX(4px); }
+  .project-card:hover::before { transform: scaleY(1); }
+
+  .project-thumb {
+    width: 52px;
+    height: 52px;
+    border-radius: 10px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    object-fit: cover;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    overflow: hidden;
+  }
+  .project-thumb img { width: 100%; height: 100%; object-fit: cover; }
+
+  .project-info { flex: 1; min-width: 0; }
+  .project-name {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .project-meta {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .project-arrow { color: var(--muted); font-size: 18px; }
+
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--muted);
+  }
+  .empty-state .icon { font-size: 48px; margin-bottom: 16px; }
+  .empty-state p { font-size: 14px; line-height: 1.6; }
+
+  /* MODAL */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.8);
+    backdrop-filter: blur(4px);
+    z-index: 200;
+    display: none;
+    align-items: flex-end;
+    justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 24px 24px 0 0;
+    padding: 24px 20px 40px;
+    width: 100%;
+    max-width: 480px;
+    animation: slideUp 0.3s ease;
+  }
+  @keyframes slideUp {
+    from { transform: translateY(100%); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  .modal-handle {
+    width: 40px; height: 4px;
+    background: var(--border);
+    border-radius: 4px;
+    margin: 0 auto 20px;
+  }
+  .modal h2 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 20px;
+    margin-bottom: 20px;
+  }
+
+  .form-group { margin-bottom: 16px; }
+  .form-group label {
+    display: block;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .form-group input, .form-group textarea {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .form-group input:focus, .form-group textarea:focus { border-color: var(--accent); }
+  .form-group textarea { resize: none; height: 80px; }
+
+  .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
+  .btn-primary {
+    flex: 1;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    padding: 16px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn-primary:hover { opacity: 0.9; }
+  .btn-secondary {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 12px;
+    padding: 16px 20px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn-secondary:hover { border-color: var(--muted); }
+
+  /* PROJECT SCREEN */
+  .project-header {
+    padding: 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .project-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 24px;
+    letter-spacing: -0.5px;
+    margin-bottom: 6px;
+  }
+  .project-desc {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  .mode-tabs {
+    display: flex;
+    padding: 12px 20px;
+    gap: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  .mode-tab {
+    flex: 1;
+    padding: 10px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: none;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: center;
+  }
+  .mode-tab.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+
+  .steps-container { flex: 1; overflow-y: auto; padding: 16px 20px; }
+
+  /* STEP CARD */
+  .step-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    margin-bottom: 16px;
+    overflow: hidden;
+    transition: all 0.2s;
+  }
+  .step-card.reassembly { border-color: rgba(76,175,130,0.3); }
+
+  .step-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .step-number {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    background: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+  .step-card.reassembly .step-number { background: var(--green); }
+  .step-title-area { flex: 1; }
+  .step-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .step-label.reassembly-label { color: var(--green); }
+
+  .step-timestamp {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+  }
+
+  .step-img-area {
+    position: relative;
+    background: var(--surface2);
+  }
+  .step-img-area img {
+    width: 100%;
+    max-height: 240px;
+    object-fit: cover;
+    display: block;
+  }
+  .step-img-placeholder {
+    height: 140px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--muted);
+    font-size: 36px;
+  }
+
+  .step-body { padding: 14px 16px; }
+  .step-ai-desc {
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--text);
+    margin-bottom: 10px;
+  }
+  .step-ai-desc.placeholder { color: var(--muted); font-style: italic; }
+
+  .step-ai-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(255,107,43,0.1);
+    border: 1px solid rgba(255,107,43,0.2);
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--accent);
+    margin-bottom: 10px;
+  }
+  .reassembly-tip {
+    background: rgba(76,175,130,0.08);
+    border: 1px solid rgba(76,175,130,0.2);
+    border-radius: 10px;
+    padding: 12px;
+    font-size: 13px;
+    line-height: 1.6;
+    color: #a8d5be;
+    margin-top: 10px;
+  }
+  .reassembly-tip-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--green);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .step-notes {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.5;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+    margin-top: 10px;
+  }
+
+  /* ADD STEP BUTTON */
+  .add-step-section {
+    padding: 0 20px 24px;
+  }
+  .add-step-btn {
+    width: 100%;
+    background: var(--surface);
+    border: 2px dashed var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    color: var(--muted);
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.2s;
+  }
+  .add-step-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(255,107,43,0.04); }
+
+  /* AI LOADING */
+  .ai-loading {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px 14px;
+    color: var(--accent);
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+  }
+  .ai-dots span {
+    display: inline-block;
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--accent);
+    margin: 0 1px;
+    animation: bounce 1.2s infinite;
+  }
+  .ai-dots span:nth-child(2) { animation-delay: 0.2s; }
+  .ai-dots span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes bounce {
+    0%, 80%, 100% { transform: translateY(0); opacity: 0.4; }
+    40% { transform: translateY(-6px); opacity: 1; }
+  }
+
+  /* REASSEMBLY HEADER */
+  .reassembly-header {
+    background: rgba(76,175,130,0.06);
+    border-bottom: 1px solid rgba(76,175,130,0.15);
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .reassembly-icon { font-size: 24px; }
+  .reassembly-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--green);
+  }
+  .reassembly-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+  /* STEP MODAL - PHOTO CAPTURE */
+  .photo-capture-area {
+    background: var(--surface2);
+    border: 2px dashed var(--border);
+    border-radius: 14px;
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.2s;
+    margin-bottom: 16px;
+  }
+  .photo-capture-area:hover { border-color: var(--accent); }
+  .photo-capture-area img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 12px;
+  }
+  .photo-capture-area .overlay-btn {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: rgba(0,0,0,0.5);
+    color: #fff;
+    border-radius: 12px;
+    font-size: 13px;
+  }
+  .photo-capture-area .overlay-btn .cam-icon { font-size: 32px; }
+  .capture-hint {
+    color: var(--muted);
+    font-size: 28px;
+  }
+  .capture-text { font-size: 14px; color: var(--muted); font-weight: 500; }
+  .capture-sub { font-size: 12px; color: var(--muted); opacity: 0.6; }
+  #fileInput { display: none; }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 20px;
+    font-size: 13px;
+    color: var(--text);
+    opacity: 0;
+    transition: all 0.3s;
+    z-index: 300;
+    white-space: nowrap;
+    pointer-events: none;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* Delete step */
+  .step-actions {
+    display: flex;
+    gap: 8px;
+    padding: 0 16px 14px;
+  }
+  .delete-step-btn {
+    background: rgba(224,82,82,0.1);
+    border: 1px solid rgba(224,82,82,0.2);
+    color: var(--red);
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 12px;
+    font-family: 'DM Mono', monospace;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .delete-step-btn:hover { background: rgba(224,82,82,0.2); }
+
+  /* API key input */
+  .api-key-notice {
+    margin: 0 20px 16px;
+    background: rgba(255,107,43,0.06);
+    border: 1px solid rgba(255,107,43,0.2);
+    border-radius: 12px;
+    padding: 14px;
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--muted);
+  }
+  .api-key-notice strong { color: var(--accent); }
+  .api-key-input-row { display: flex; gap: 8px; margin-top: 10px; }
+  .api-key-input-row input {
+    flex: 1;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    outline: none;
+  }
+  .api-key-input-row input:focus { border-color: var(--accent); }
+  .api-key-save-btn {
+    background: var(--accent);
+    border: none;
+    border-radius: 8px;
+    padding: 10px 16px;
+    color: #fff;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  /* Delete project */
+  .danger-zone {
+    padding: 20px;
+    border-top: 1px solid var(--border);
+    margin-top: auto;
+  }
+  .delete-project-btn {
+    width: 100%;
+    background: none;
+    border: 1px solid rgba(224,82,82,0.3);
+    color: var(--red);
+    border-radius: 10px;
+    padding: 14px;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .delete-project-btn:hover { background: rgba(224,82,82,0.08); border-color: var(--red); }
+
+  /* Step count badge */
+  .step-count-badge {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    display: inline-block;
+    margin-top: 8px;
+  }
+
+  .scrollable { overflow-y: auto; flex: 1; }
+</style>
+</head>
+<body>
+
+<!-- ============ HOME SCREEN ============ -->
+<div id="screen-home" class="screen active">
+  <div class="topbar">
+    <div class="logo">Re<span>Assemble</span></div>
+    <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);">AI-POWERED</div>
+  </div>
+
+  <div class="home-hero">
+    <h1>Disassemble.<em>Remember.</em>Rebuild.</h1>
+    <p>Document every step with photos and let AI guide your reassembly — so nothing gets lost in the process.</p>
+  </div>
+
+  <button class="new-project-btn" onclick="openNewProjectModal()">
+    <span style="font-size:20px">＋</span> Start New Project
+  </button>
+
+  <div class="api-key-notice" id="apiKeyNotice">
+    <strong>AI Features need your API key.</strong> Enter your Anthropic API key to enable auto-descriptions and reassembly tips.
+    <div class="api-key-input-row">
+      <input type="password" id="apiKeyInput" placeholder="sk-ant-..." />
+      <button class="api-key-save-btn" onclick="saveApiKey()">Save</button>
+    </div>
+  </div>
+
+  <div class="section-label">YOUR PROJECTS</div>
+  <div class="projects-list scrollable" id="projectsList"></div>
+</div>
+
+<!-- ============ PROJECT SCREEN ============ -->
+<div id="screen-project" class="screen">
+  <div class="topbar">
+    <button class="back-btn" onclick="goHome()">← Back</button>
+    <div class="logo">Re<span>Assemble</span></div>
+    <button class="back-btn" onclick="deleteCurrentProject()" style="border-color:rgba(224,82,82,0.3);color:var(--red)">🗑</button>
+  </div>
+
+  <div class="project-header">
+    <div class="project-title" id="projectScreenTitle"></div>
+    <div class="project-desc" id="projectScreenDesc"></div>
+    <div class="step-count-badge" id="stepCountBadge"></div>
+  </div>
+
+  <div class="mode-tabs">
+    <button class="mode-tab active" id="tab-dis" onclick="setMode('disassembly')">🔧 Disassembly</button>
+    <button class="mode-tab" id="tab-re" onclick="setMode('reassembly')">🔄 Reassembly</button>
+  </div>
+
+  <div class="scrollable" id="stepsScrollArea">
+    <div id="reassemblyHeader" style="display:none">
+      <div class="reassembly-header">
+        <div class="reassembly-icon">🔄</div>
+        <div>
+          <div class="reassembly-title">Reassembly Mode</div>
+          <div class="reassembly-sub">Steps shown in reverse order with AI tips</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="steps-container" id="stepsList"></div>
+
+    <div class="add-step-section" id="addStepSection">
+      <button class="add-step-btn" onclick="openAddStepModal()">
+        📸 Add Disassembly Step
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ NEW PROJECT MODAL ============ -->
+<div class="modal-overlay" id="newProjectModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h2>New Project</h2>
+    <div class="form-group">
+      <label>Item Name</label>
+      <input type="text" id="newProjectName" placeholder="e.g. Honda CB500 Engine, PS5 Controller..." />
+    </div>
+    <div class="form-group">
+      <label>Notes (optional)</label>
+      <textarea id="newProjectDesc" placeholder="Any context about this disassembly..."></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeNewProjectModal()">Cancel</button>
+      <button class="btn-primary" onclick="createProject()">Create Project</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ ADD STEP MODAL ============ -->
+<div class="modal-overlay" id="addStepModal">
+  <div class="modal" style="max-height:90vh;overflow-y:auto;">
+    <div class="modal-handle"></div>
+    <h2>Add Step <span id="stepModalNumber" style="color:var(--accent)"></span></h2>
+
+    <div class="photo-capture-area" id="photoCaptureArea" onclick="triggerPhotoCapture()">
+      <div class="capture-hint">📷</div>
+      <div class="capture-text">Tap to take photo or upload</div>
+      <div class="capture-sub">Camera opens on mobile</div>
+    </div>
+    <input type="file" id="fileInput" accept="image/*" capture="environment" onchange="handlePhotoSelected(event)" />
+
+    <div class="form-group">
+      <label>Notes (optional)</label>
+      <textarea id="stepNotes" placeholder="e.g. 3 bolts removed, stored in left tray..."></textarea>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeAddStepModal()">Cancel</button>
+      <button class="btn-primary" id="saveStepBtn" onclick="saveStep()">Add Step</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ==================== STORAGE ====================
+const STORAGE_KEY = 'reassemble_data_v2';
+const API_KEY_STORAGE = 'reassemble_api_key';
+
+let appData = { projects: [] };
+let currentProjectId = null;
+let currentMode = 'disassembly';
+let pendingPhotoBase64 = null;
+let pendingPhotoDataUrl = null;
+
+function loadData() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) appData = JSON.parse(raw);
+  } catch(e) {}
+}
+
+function saveData() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+}
+
+function getApiKey() {
+  return localStorage.getItem(API_KEY_STORAGE) || '';
+}
+
+function saveApiKey() {
+  const val = document.getElementById('apiKeyInput').value.trim();
+  if (!val) return;
+  localStorage.setItem(API_KEY_STORAGE, val);
+  document.getElementById('apiKeyNotice').style.background = 'rgba(76,175,130,0.06)';
+  document.getElementById('apiKeyNotice').style.borderColor = 'rgba(76,175,130,0.2)';
+  document.getElementById('apiKeyNotice').innerHTML = '<strong style="color:var(--green)">✓ API key saved.</strong> AI features are enabled.';
+  showToast('API key saved ✓');
+}
+
+// ==================== NAVIGATION ====================
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+}
+
+function goHome() {
+  showScreen('home');
+  renderProjectsList();
+}
+
+// ==================== HOME ====================
+function renderProjectsList() {
+  const list = document.getElementById('projectsList');
+  if (appData.projects.length === 0) {
+    list.innerHTML = `<div class="empty-state"><div class="icon">🔩</div><p>No projects yet. Tap "Start New Project" to document your first disassembly.</p></div>`;
+    return;
+  }
+  list.innerHTML = appData.projects.map(p => {
+    const steps = p.steps || [];
+    const lastImg = steps.slice().reverse().find(s => s.photoDataUrl);
+    const thumbContent = lastImg
+      ? `<img src="${lastImg.photoDataUrl}" alt="" />`
+      : `🔧`;
+    return `
+      <div class="project-card" onclick="openProject('${p.id}')">
+        <div class="project-thumb">${thumbContent}</div>
+        <div class="project-info">
+          <div class="project-name">${escHtml(p.name)}</div>
+          <div class="project-meta">${steps.length} step${steps.length !== 1 ? 's' : ''} · ${new Date(p.createdAt).toLocaleDateString()}</div>
+        </div>
+        <div class="project-arrow">›</div>
+      </div>`;
+  }).join('');
+}
+
+function openNewProjectModal() {
+  document.getElementById('newProjectName').value = '';
+  document.getElementById('newProjectDesc').value = '';
+  document.getElementById('newProjectModal').classList.add('open');
+  setTimeout(() => document.getElementById('newProjectName').focus(), 300);
+}
+
+function closeNewProjectModal() {
+  document.getElementById('newProjectModal').classList.remove('open');
+}
+
+function createProject() {
+  const name = document.getElementById('newProjectName').value.trim();
+  if (!name) { showToast('Please enter a project name'); return; }
+  const project = {
+    id: 'p_' + Date.now(),
+    name,
+    desc: document.getElementById('newProjectDesc').value.trim(),
+    createdAt: Date.now(),
+    steps: []
+  };
+  appData.projects.unshift(project);
+  saveData();
+  closeNewProjectModal();
+  openProject(project.id);
+}
+
+// ==================== PROJECT ====================
+function getCurrentProject() {
+  return appData.projects.find(p => p.id === currentProjectId);
+}
+
+function openProject(id) {
+  currentProjectId = id;
+  currentMode = 'disassembly';
+  const p = getCurrentProject();
+  document.getElementById('projectScreenTitle').textContent = p.name;
+  document.getElementById('projectScreenDesc').textContent = p.desc || 'Tap + to document your first disassembly step';
+  renderSteps();
+  showScreen('project');
+  document.getElementById('tab-dis').classList.add('active');
+  document.getElementById('tab-re').classList.remove('active');
+  document.getElementById('reassemblyHeader').style.display = 'none';
+  document.getElementById('addStepSection').style.display = 'block';
+}
+
+function setMode(mode) {
+  currentMode = mode;
+  document.getElementById('tab-dis').classList.toggle('active', mode === 'disassembly');
+  document.getElementById('tab-re').classList.toggle('active', mode === 'reassembly');
+  document.getElementById('reassemblyHeader').style.display = mode === 'reassembly' ? 'block' : 'none';
+  document.getElementById('addStepSection').style.display = mode === 'disassembly' ? 'block' : 'none';
+  renderSteps();
+}
+
+function renderSteps() {
+  const p = getCurrentProject();
+  if (!p) return;
+  const steps = p.steps || [];
+
+  const badge = document.getElementById('stepCountBadge');
+  badge.textContent = `${steps.length} step${steps.length !== 1 ? 's' : ''} documented`;
+
+  const container = document.getElementById('stepsList');
+  if (steps.length === 0) {
+    container.innerHTML = `<div class="empty-state"><div class="icon">📸</div><p>No steps yet. Tap "Add Disassembly Step" to begin documenting.</p></div>`;
+    return;
+  }
+
+  const displaySteps = currentMode === 'reassembly' ? [...steps].reverse() : steps;
+
+  container.innerHTML = displaySteps.map((step, i) => {
+    const displayNum = currentMode === 'reassembly' ? (steps.length - i) : (i + 1);
+    const isRe = currentMode === 'reassembly';
+    const originalIndex = isRe ? (steps.length - 1 - i) : i;
+
+    return `
+      <div class="step-card ${isRe ? 'reassembly' : ''}">
+        <div class="step-header">
+          <div class="step-number">${displayNum}</div>
+          <div class="step-title-area">
+            <div class="step-label ${isRe ? 'reassembly-label' : ''}">${isRe ? '🔄 REASSEMBLE' : '🔧 DISASSEMBLE'} · STEP ${displayNum}</div>
+          </div>
+          <div class="step-timestamp">${formatTime(step.timestamp)}</div>
+        </div>
+        ${step.photoDataUrl ? `<div class="step-img-area"><img src="${step.photoDataUrl}" alt="Step ${displayNum}" /></div>` : `<div class="step-img-area"><div class="step-img-placeholder">🖼️</div></div>`}
+        <div class="step-body">
+          ${step.aiDescription
+            ? `<div class="ai-badge">🤖 AI DESCRIBED</div><div class="step-ai-desc">${escHtml(step.aiDescription)}</div>`
+            : step.aiLoading
+              ? `<div class="ai-loading"><div class="ai-dots"><span></span><span></span><span></span></div> Analyzing with AI...</div>`
+              : `<div class="step-ai-desc placeholder">No AI description yet. Add an API key on the home screen.</div>`
+          }
+          ${isRe && step.reassemblyTip ? `
+            <div class="reassembly-tip">
+              <div class="reassembly-tip-label">✦ REASSEMBLY TIP</div>
+              ${escHtml(step.reassemblyTip)}
+            </div>` : ''}
+          ${step.notes ? `<div class="step-notes">📝 ${escHtml(step.notes)}</div>` : ''}
+        </div>
+        ${!isRe ? `<div class="step-actions"><button class="delete-step-btn" onclick="deleteStep(${originalIndex})">🗑 Remove step</button></div>` : ''}
+      </div>`;
+  }).join('');
+}
+
+function deleteStep(index) {
+  const p = getCurrentProject();
+  p.steps.splice(index, 1);
+  saveData();
+  renderSteps();
+  showToast('Step removed');
+}
+
+function deleteCurrentProject() {
+  if (!confirm('Delete this project and all its steps?')) return;
+  appData.projects = appData.projects.filter(p => p.id !== currentProjectId);
+  saveData();
+  goHome();
+  showToast('Project deleted');
+}
+
+// ==================== ADD STEP ====================
+function openAddStepModal() {
+  pendingPhotoBase64 = null;
+  pendingPhotoDataUrl = null;
+  document.getElementById('stepNotes').value = '';
+  document.getElementById('fileInput').value = '';
+
+  const captureArea = document.getElementById('photoCaptureArea');
+  captureArea.innerHTML = `
+    <div class="capture-hint">📷</div>
+    <div class="capture-text">Tap to take photo or upload</div>
+    <div class="capture-sub">Camera opens on mobile</div>
+  `;
+
+  const p = getCurrentProject();
+  const stepNum = (p.steps || []).length + 1;
+  document.getElementById('stepModalNumber').textContent = `#${stepNum}`;
+
+  document.getElementById('addStepModal').classList.add('open');
+}
+
+function closeAddStepModal() {
+  document.getElementById('addStepModal').classList.remove('open');
+}
+
+function triggerPhotoCapture() {
+  document.getElementById('fileInput').click();
+}
+
+function handlePhotoSelected(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    pendingPhotoDataUrl = e.target.result;
+    // Extract base64 part
+    pendingPhotoBase64 = e.target.result.split(',')[1];
+
+    const captureArea = document.getElementById('photoCaptureArea');
+    captureArea.innerHTML = `
+      <img src="${pendingPhotoDataUrl}" alt="Selected" />
+      <div class="overlay-btn">
+        <div class="cam-icon">📷</div>
+        <div>Tap to change photo</div>
+      </div>
+    `;
+  };
+  reader.readAsDataURL(file);
+}
+
+async function saveStep() {
+  const p = getCurrentProject();
+  const notes = document.getElementById('stepNotes').value.trim();
+
+  const step = {
+    id: 's_' + Date.now(),
+    timestamp: Date.now(),
+    photoDataUrl: pendingPhotoDataUrl || null,
+    photoBase64: pendingPhotoBase64 || null,
+    notes,
+    aiDescription: null,
+    reassemblyTip: null,
+    aiLoading: false
+  };
+
+  p.steps.push(step);
+  saveData();
+  closeAddStepModal();
+  renderSteps();
+
+  // Trigger AI analysis if we have API key and photo
+  if (pendingPhotoBase64 && getApiKey()) {
+    step.aiLoading = true;
+    renderSteps();
+    await analyzeStepWithAI(p, step);
+  }
+}
+
+// ==================== AI ====================
+async function analyzeStepWithAI(project, step) {
+  const apiKey = getApiKey();
+  if (!apiKey || !step.photoBase64) return;
+
+  const stepIndex = project.steps.findIndex(s => s.id === step.id) + 1;
+  const totalSteps = project.steps.length;
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 600,
+        system: `You are an expert mechanical/technical documentation assistant. You help users document disassembly steps with precision. 
+        When analyzing a disassembly photo, provide:
+        1. A concise description of what was removed/disconnected (1-2 sentences)
+        2. A specific reassembly tip for this exact step (1-2 sentences)
+        
+        Respond ONLY with JSON in this exact format, no other text:
+        {"description": "...", "reassemblyTip": "..."}`,
+        messages: [{
+          role: 'user',
+          content: [
+            {
+              type: 'image',
+              source: {
+                type: 'base64',
+                media_type: 'image/jpeg',
+                data: step.photoBase64
+              }
+            },
+            {
+              type: 'text',
+              text: `This is step ${stepIndex} of ${totalSteps} in disassembling: "${project.name}". ${step.notes ? `User notes: "${step.notes}". ` : ''}Describe what's happening in this disassembly step and provide a reassembly tip.`
+            }
+          ]
+        }]
+      })
+    });
+
+    const data = await response.json();
+    if (data.content && data.content[0]) {
+      const text = data.content[0].text;
+      try {
+        const clean = text.replace(/```json|```/g, '').trim();
+        const parsed = JSON.parse(clean);
+        step.aiDescription = parsed.description || 'Step documented.';
+        step.reassemblyTip = parsed.reassemblyTip || '';
+      } catch {
+        step.aiDescription = text.substring(0, 200);
+      }
+    } else if (data.error) {
+      step.aiDescription = `AI error: ${data.error.message}`;
+    }
+  } catch(err) {
+    step.aiDescription = 'AI analysis unavailable. Step photo saved.';
+  }
+
+  step.aiLoading = false;
+  // Clear the base64 after use to save storage space
+  step.photoBase64 = null;
+  saveData();
+  renderSteps();
+}
+
+// ==================== UTILS ====================
+function escHtml(str) {
+  if (!str) return '';
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function formatTime(ts) {
+  const d = new Date(ts);
+  return d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ==================== INIT ====================
+loadData();
+
+// Check API key
+const storedKey = getApiKey();
+if (storedKey) {
+  document.getElementById('apiKeyNotice').innerHTML = '<strong style="color:var(--green)">✓ API key saved.</strong> AI features are enabled.';
+}
+
+renderProjectsList();
+
+// Close modals on overlay click
+document.getElementById('newProjectModal').addEventListener('click', function(e) {
+  if (e.target === this) closeNewProjectModal();
+});
+document.getElementById('addStepModal').addEventListener('click', function(e) {
+  if (e.target === this) closeAddStepModal();
+});
+
+// Enter key on project name
+document.getElementById('newProjectName').addEventListener('keydown', e => {
+  if (e.key === 'Enter') createProject();
+});
+</script>
+</body>
+</html>
