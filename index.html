@@ -921,7 +921,7 @@
         <span style="font-size:18px">📸</span> Add Next Step
       </button>
       <button class="btn-done-step" onclick="dismissSavedOverlay()">
-        Done for now
+        ✓ Finish — View All Steps
       </button>
     </div>
   </div>
@@ -970,6 +970,9 @@ function showScreen(id) {
 }
 
 function goHome() {
+  dismissSavedOverlay();
+  closeAddStepModal();
+  closeNewProjectModal();
   showScreen('home');
   renderProjectsList();
 }
@@ -1023,7 +1026,9 @@ function createProject() {
   appData.projects.unshift(project);
   saveData();
   closeNewProjectModal();
-  openProject(project.id);
+  dismissSavedOverlay();
+  closeAddStepModal();
+  setTimeout(() => openProject(project.id), 150);
 }
 
 // ==================== PROJECT ====================
@@ -1032,17 +1037,23 @@ function getCurrentProject() {
 }
 
 function openProject(id) {
+  closeNewProjectModal();
+  dismissSavedOverlay();
+  closeAddStepModal();
   currentProjectId = id;
   currentMode = 'disassembly';
-  const p = getCurrentProject();
+  const p = appData.projects.find(proj => proj.id === id);
+  if (!p) return;
   document.getElementById('projectScreenTitle').textContent = p.name;
-  document.getElementById('projectScreenDesc').textContent = p.desc || 'Tap + to document your first disassembly step';
-  renderSteps();
-  showScreen('project');
+  document.getElementById('projectScreenDesc').textContent = p.desc || 'Tap below to document your first disassembly step';
   document.getElementById('tab-dis').classList.add('active');
   document.getElementById('tab-re').classList.remove('active');
   document.getElementById('reassemblyHeader').style.display = 'none';
   document.getElementById('addStepSection').style.display = 'block';
+  renderSteps();
+  showScreen('project');
+  const scrollArea = document.getElementById('stepsScrollArea');
+  if (scrollArea) scrollArea.scrollTop = 0;
 }
 
 function setMode(mode) {
