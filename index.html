@@ -1075,6 +1075,19 @@
     border-radius: 6px;
     transition: width 0.4s ease;
   }
+
+  .delete-home-btn {
+    background: none;
+    border: 1px solid rgba(224,82,82,0.25);
+    color: var(--red);
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-size: 16px;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all 0.15s;
+  }
+  .delete-home-btn:hover { background: rgba(224,82,82,0.08); border-color: var(--red); }
 </style>
 </head>
 <body>
@@ -1083,7 +1096,7 @@
 <div id="screen-home" class="screen active">
   <div class="topbar">
     <div class="logo">Re<span>Assemble</span></div>
-    <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);">AI-POWERED</div>
+    <!-- <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);">AI-POWERED</div> -->
   </div>
 
   <div class="home-hero">
@@ -1095,6 +1108,7 @@
     <span style="font-size:20px">＋</span> Start New Project
   </button>
 
+  <!-- API KEY NOTICE - hidden for demo
   <div class="api-key-notice" id="apiKeyNotice">
     <strong>AI Features need your API key.</strong> Enter your Anthropic API key to enable auto-descriptions and reassembly tips.
     <div class="api-key-input-row">
@@ -1102,6 +1116,8 @@
       <button class="api-key-save-btn" onclick="saveApiKey()">Save</button>
     </div>
   </div>
+  -->
+  <div id="apiKeyNotice" style="display:none"></div>
 
   <div class="section-label">YOUR PROJECTS</div>
   <div class="projects-list scrollable" id="projectsList"></div>
@@ -1110,9 +1126,9 @@
 <!-- ============ PROJECT SCREEN (DISASSEMBLY) ============ -->
 <div id="screen-project" class="screen">
   <div class="topbar">
-    <button class="back-btn" onclick="goHome()">← Back</button>
+    <button class="back-btn" onclick="goHome()" style="font-size:14px;">🏠 Home</button>
     <div class="logo">Re<span>Assemble</span></div>
-    <button class="back-btn" onclick="deleteCurrentProject()" style="border-color:rgba(224,82,82,0.3);color:var(--red)">🗑</button>
+    <button class="back-btn" onclick="deleteCurrentProject()" style="border-color:rgba(224,82,82,0.3);color:var(--red)">🗑 Delete</button>
   </div>
 
   <div class="project-header">
@@ -1122,8 +1138,8 @@
   </div>
 
   <div class="mode-tabs">
-    <button class="mode-tab active" id="tab-dis" onclick="setMode('disassembly')">🔧 Disassembly</button>
-    <button class="mode-tab" id="tab-re" onclick="setMode('reassembly')">🔄 Reassembly</button>
+    <button class="mode-tab active" id="tab-dis" onclick="exitReassembly()">🔧 Disassembly</button>
+    <button class="mode-tab" id="tab-re" onclick="enterReassembly()">🔄 Reassembly</button>
   </div>
 
   <div class="scrollable" id="stepsScrollArea">
@@ -1139,7 +1155,7 @@
 <!-- ============ REASSEMBLY SCREEN (step-by-step) ============ -->
 <div id="screen-reassembly" class="screen">
   <div class="topbar">
-    <button class="back-btn" onclick="exitReassembly()">← Back</button>
+    <button class="back-btn" onclick="exitReassembly()" style="font-size:14px;">🏠 Home</button>
     <div class="logo">Re<span>Assemble</span></div>
     <div id="reStepCounter" style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);">1 / 1</div>
   </div>
@@ -1324,16 +1340,32 @@ function renderProjectsList() {
     const thumbContent = lastImg
       ? `<img src="${lastImg.photoDataUrl}" alt="" />`
       : `🔧`;
+    const doneCount = steps.filter(s => s.reDone).length;
+    const isComplete = steps.length > 0 && doneCount === steps.length;
+    const statusBadge = isComplete
+      ? `<span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--green);background:rgba(76,175,130,0.1);border:1px solid rgba(76,175,130,0.3);border-radius:6px;padding:2px 8px;margin-top:4px;display:inline-block;">✓ COMPLETE</span>`
+      : doneCount > 0
+        ? `<span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--accent);background:rgba(255,107,43,0.08);border:1px solid rgba(255,107,43,0.2);border-radius:6px;padding:2px 8px;margin-top:4px;display:inline-block;">${doneCount}/${steps.length} reassembled</span>`
+        : '';
     return `
       <div class="project-card" onclick="openProject('${p.id}')">
         <div class="project-thumb">${thumbContent}</div>
         <div class="project-info">
           <div class="project-name">${escHtml(p.name)}</div>
           <div class="project-meta">${steps.length} step${steps.length !== 1 ? 's' : ''} · ${new Date(p.createdAt).toLocaleDateString()}</div>
+          ${statusBadge}
         </div>
-        <div class="project-arrow">›</div>
+        <button class="delete-home-btn" onclick="event.stopPropagation(); deleteProjectFromHome('${p.id}')">🗑</button>
       </div>`;
   }).join('');
+}
+
+function deleteProjectFromHome(id) {
+  if (!confirm('Delete this project and all its steps?')) return;
+  appData.projects = appData.projects.filter(p => p.id !== id);
+  saveData();
+  renderProjectsList();
+  showToast('Project deleted');
 }
 
 function openNewProjectModal() {
@@ -1460,11 +1492,13 @@ function enterReassembly() {
 }
 
 function exitReassembly() {
-  showScreen('project');
+  currentMode = 'disassembly';
   document.getElementById('tab-dis').classList.add('active');
   document.getElementById('tab-re').classList.remove('active');
-  currentMode = 'disassembly';
   renderSteps();
+  showScreen('project');
+  const scrollArea = document.getElementById('stepsScrollArea');
+  if (scrollArea) scrollArea.scrollTop = 0;
 }
 
 function renderReStep() {
