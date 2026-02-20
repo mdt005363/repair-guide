@@ -528,6 +528,178 @@
     color: var(--green);
   }
   .reassembly-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  /* REASSEMBLY CHECKLIST */
+  .re-progress-bar-wrap {
+    padding: 12px 20px 0;
+  }
+  .re-progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  .re-progress-track {
+    height: 6px;
+    background: var(--surface2);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .re-progress-fill {
+    height: 100%;
+    background: var(--green);
+    border-radius: 6px;
+    transition: width 0.4s ease;
+  }
+
+  .step-card.re-done {
+    border-color: rgba(76,175,130,0.4);
+    opacity: 0.75;
+  }
+  .step-card.re-done .step-number { background: var(--green); }
+
+  .re-check-btn {
+    width: 100%;
+    background: none;
+    border: 2px solid rgba(76,175,130,0.35);
+    color: var(--green);
+    border-radius: 12px;
+    padding: 14px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s;
+    margin-top: 12px;
+  }
+  .re-check-btn:hover { background: rgba(76,175,130,0.08); border-color: var(--green); }
+  .re-check-btn.done {
+    background: rgba(76,175,130,0.1);
+    border-color: var(--green);
+    color: var(--green);
+  }
+  .re-check-btn.uncheck {
+    border-color: rgba(224,82,82,0.3);
+    color: var(--red);
+    background: none;
+    font-size: 12px;
+    padding: 10px;
+    margin-top: 6px;
+  }
+  .re-check-btn.uncheck:hover { background: rgba(224,82,82,0.06); border-color: var(--red); }
+
+  .re-verify-photos {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+  }
+  .re-verify-photo {
+    width: 72px; height: 72px;
+    border-radius: 10px;
+    object-fit: cover;
+    border: 1px solid var(--border);
+    cursor: pointer;
+  }
+  .re-add-photo-btn {
+    width: 72px; height: 72px;
+    border-radius: 10px;
+    border: 2px dashed var(--border);
+    background: var(--surface2);
+    color: var(--muted);
+    font-size: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all 0.15s;
+  }
+  .re-add-photo-btn:hover { border-color: var(--green); color: var(--green); }
+  .re-verify-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-top: 12px;
+    margin-bottom: 6px;
+  }
+
+  /* COMPLETION SCREEN */
+  .completion-overlay {
+    position: fixed;
+    inset: 0;
+    background: var(--bg);
+    z-index: 400;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 24px;
+    text-align: center;
+  }
+  .completion-overlay.open { display: flex; }
+  .completion-burst {
+    font-size: 64px;
+    margin-bottom: 24px;
+    animation: popIn 0.5s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  .completion-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 32px;
+    letter-spacing: -1px;
+    color: var(--green);
+    margin-bottom: 10px;
+  }
+  .completion-sub {
+    font-size: 15px;
+    color: var(--muted);
+    line-height: 1.6;
+    margin-bottom: 8px;
+    max-width: 300px;
+  }
+  .completion-stats {
+    display: flex;
+    gap: 16px;
+    margin: 24px 0;
+  }
+  .completion-stat {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px 20px;
+    flex: 1;
+  }
+  .completion-stat-num {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 28px;
+    color: var(--green);
+  }
+  .completion-stat-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 4px;
+  }
+  .completion-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    max-width: 360px;
+    margin-top: 8px;
+  }
+
 
   /* STEP MODAL - PHOTO CAPTURE */
   .photo-capture-area {
@@ -577,22 +749,26 @@
   /* Toast */
   .toast {
     position: fixed;
-    bottom: 80px;
+    bottom: 100px;
     left: 50%;
-    transform: translateX(-50%) translateY(20px);
-    background: var(--surface2);
+    transform: translateX(-50%) translateY(16px);
+    background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 12px 20px;
-    font-size: 13px;
+    border-radius: 14px;
+    padding: 14px 24px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
     color: var(--text);
     opacity: 0;
-    transition: all 0.3s;
-    z-index: 300;
+    transition: all 0.25s cubic-bezier(0.34,1.56,0.64,1);
+    z-index: 500;
     white-space: nowrap;
     pointer-events: none;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
   }
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .toast.toast-success { background: rgba(76,175,130,0.15); border-color: rgba(76,175,130,0.4); color: var(--green); }
 
   /* Delete step */
   .step-actions {
@@ -788,6 +964,117 @@
     transition: all 0.15s;
   }
   .btn-done-step:hover { border-color: var(--muted); color: var(--text); }
+
+  /* REASSEMBLY STEP SCREEN */
+  .re-step-img {
+    width: 100%;
+    border-radius: 14px;
+    object-fit: cover;
+    max-height: 220px;
+    border: 1px solid var(--border);
+    display: block;
+    margin-bottom: 14px;
+  }
+  .re-step-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .re-step-label.done { color: var(--green); }
+  .re-step-desc {
+    font-size: 15px;
+    line-height: 1.65;
+    color: var(--text);
+    margin-bottom: 12px;
+  }
+  .re-tip-box {
+    background: rgba(76,175,130,0.08);
+    border: 1px solid rgba(76,175,130,0.2);
+    border-radius: 12px;
+    padding: 14px;
+    margin-bottom: 14px;
+  }
+  .re-tip-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--green);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .re-tip-text { font-size: 13px; line-height: 1.6; color: #a8d5be; }
+  .re-notes-box {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.5;
+    padding: 10px 0;
+    border-top: 1px solid var(--border);
+    margin-bottom: 14px;
+  }
+  .re-done-banner {
+    background: rgba(76,175,130,0.1);
+    border: 1px solid rgba(76,175,130,0.3);
+    border-radius: 12px;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--green);
+  }
+  .re-verify-section { margin-bottom: 14px; }
+  .re-verify-section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .re-verify-thumbs {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .re-verify-thumb {
+    width: 80px; height: 80px;
+    border-radius: 10px;
+    object-fit: cover;
+    border: 1px solid var(--border);
+  }
+  .re-add-verify-btn {
+    width: 80px; height: 80px;
+    border-radius: 10px;
+    border: 2px dashed var(--border);
+    background: var(--surface2);
+    color: var(--muted);
+    font-size: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.15s;
+    flex-shrink: 0;
+  }
+  .re-add-verify-btn:hover { border-color: var(--green); color: var(--green); }
+  .re-progress-track {
+    height: 6px;
+    background: var(--surface2);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .re-progress-fill {
+    height: 100%;
+    background: var(--green);
+    border-radius: 6px;
+    transition: width 0.4s ease;
+  }
 </style>
 </head>
 <body>
@@ -820,7 +1107,7 @@
   <div class="projects-list scrollable" id="projectsList"></div>
 </div>
 
-<!-- ============ PROJECT SCREEN ============ -->
+<!-- ============ PROJECT SCREEN (DISASSEMBLY) ============ -->
 <div id="screen-project" class="screen">
   <div class="topbar">
     <button class="back-btn" onclick="goHome()">← Back</button>
@@ -840,22 +1127,43 @@
   </div>
 
   <div class="scrollable" id="stepsScrollArea">
-    <div id="reassemblyHeader" style="display:none">
-      <div class="reassembly-header">
-        <div class="reassembly-icon">🔄</div>
-        <div>
-          <div class="reassembly-title">Reassembly Mode</div>
-          <div class="reassembly-sub">Steps shown in reverse order with AI tips</div>
-        </div>
-      </div>
-    </div>
-
     <div class="steps-container" id="stepsList"></div>
-
     <div class="add-step-section" id="addStepSection">
       <button class="add-step-btn" onclick="openAddStepModal()">
         📸 Add Disassembly Step
       </button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ REASSEMBLY SCREEN (step-by-step) ============ -->
+<div id="screen-reassembly" class="screen">
+  <div class="topbar">
+    <button class="back-btn" onclick="exitReassembly()">← Back</button>
+    <div class="logo">Re<span>Assemble</span></div>
+    <div id="reStepCounter" style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);">1 / 1</div>
+  </div>
+
+  <!-- Progress bar -->
+  <div style="padding:0 20px 4px;">
+    <div style="display:flex;justify-content:space-between;font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:5px;">
+      <span id="reProgressText">0 of 0 complete</span>
+      <span id="reProgressPct">0%</span>
+    </div>
+    <div class="re-progress-track">
+      <div class="re-progress-fill" id="reProgressFill" style="width:0%"></div>
+    </div>
+  </div>
+
+  <!-- Step content area -->
+  <div class="scrollable" id="reStepContent" style="flex:1;padding:16px 20px 100px;"></div>
+
+  <!-- Fixed bottom nav -->
+  <div id="reBottomNav" style="position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;padding:12px 20px 28px;background:linear-gradient(transparent,var(--bg) 30%);z-index:50;">
+    <div style="display:flex;gap:10px;">
+      <button class="btn-secondary" id="rePrevBtn" onclick="reNav(-1)" style="flex:0 0 52px;padding:14px 0;">←</button>
+      <button class="btn-primary" id="reMainBtn" onclick="reMainAction()" style="flex:1;font-size:15px;"></button>
+      <button class="btn-secondary" id="reNextBtn" onclick="reNav(1)" style="flex:0 0 52px;padding:14px 0;">→</button>
     </div>
   </div>
 </div>
@@ -900,10 +1208,36 @@
 
     <div class="modal-actions">
       <button class="btn-secondary" onclick="closeAddStepModal()">Cancel</button>
-      <button class="btn-primary" id="saveStepBtn" onclick="saveStep()">Add Step</button>
+      <button class="btn-primary" id="saveStepBtn" onclick="saveStep()">Save Step</button>
     </div>
   </div>
 </div>
+
+
+<!-- ============ COMPLETION SCREEN ============ -->
+<div class="completion-overlay" id="completionOverlay">
+  <div class="completion-burst">🎉</div>
+  <div class="completion-title">Reassembly<br>Complete!</div>
+  <div class="completion-sub" id="completionProjectName"></div>
+  <div class="completion-stats">
+    <div class="completion-stat">
+      <div class="completion-stat-num" id="completionStepCount">0</div>
+      <div class="completion-stat-label">Steps Done</div>
+    </div>
+    <div class="completion-stat">
+      <div class="completion-stat-num" id="completionPhotoCount">0</div>
+      <div class="completion-stat-label">Verify Photos</div>
+    </div>
+  </div>
+  <div class="completion-actions">
+    <button class="btn-primary" onclick="dismissCompletion(); goHome();" style="background:var(--green);box-shadow:0 6px 20px rgba(76,175,130,0.3);font-size:17px;">
+      🏁 Finish — Back to Projects
+    </button>
+  </div>
+</div>
+
+<!-- Hidden file input for reassembly verify photos -->
+<input type="file" id="reVerifyFileInput" accept="image/*" style="display:none" onchange="handleReVerifyPhoto(event)" />
 
 <!-- Toast -->
 <div class="toast" id="toast"></div>
@@ -1048,8 +1382,8 @@ function openProject(id) {
   document.getElementById('projectScreenDesc').textContent = p.desc || 'Tap below to document your first disassembly step';
   document.getElementById('tab-dis').classList.add('active');
   document.getElementById('tab-re').classList.remove('active');
-  document.getElementById('reassemblyHeader').style.display = 'none';
-  document.getElementById('addStepSection').style.display = 'block';
+  const addSect = document.getElementById('addStepSection');
+  if (addSect) addSect.style.display = 'block';
   renderSteps();
   showScreen('project');
   const scrollArea = document.getElementById('stepsScrollArea');
@@ -1060,9 +1394,12 @@ function setMode(mode) {
   currentMode = mode;
   document.getElementById('tab-dis').classList.toggle('active', mode === 'disassembly');
   document.getElementById('tab-re').classList.toggle('active', mode === 'reassembly');
-  document.getElementById('reassemblyHeader').style.display = mode === 'reassembly' ? 'block' : 'none';
-  document.getElementById('addStepSection').style.display = mode === 'disassembly' ? 'block' : 'none';
-  renderSteps();
+  if (mode === 'reassembly') {
+    enterReassembly();
+  } else {
+    const s = document.getElementById('addStepSection'); if (s) s.style.display = 'block';
+    renderSteps();
+  }
 }
 
 function renderSteps() {
@@ -1079,56 +1416,237 @@ function renderSteps() {
     return;
   }
 
-  const displaySteps = currentMode === 'reassembly' ? [...steps].reverse() : steps;
-
-  container.innerHTML = displaySteps.map((step, i) => {
-    const displayNum = currentMode === 'reassembly' ? (steps.length - i) : (i + 1);
-    const isRe = currentMode === 'reassembly';
-    const originalIndex = isRe ? (steps.length - 1 - i) : i;
-
-    return `
-      <div class="step-card ${isRe ? 'reassembly' : ''}">
-        <div class="step-header">
-          <div class="step-number">${displayNum}</div>
-          <div class="step-title-area">
-            <div class="step-label ${isRe ? 'reassembly-label' : ''}">${isRe ? '🔄 REASSEMBLE' : '🔧 DISASSEMBLE'} · STEP ${displayNum}</div>
-          </div>
-          <div class="step-timestamp">${formatTime(step.timestamp)}</div>
+  container.innerHTML = steps.map((step, i) => `
+    <div class="step-card">
+      <div class="step-header">
+        <div class="step-number">${i + 1}</div>
+        <div class="step-title-area">
+          <div class="step-label">🔧 DISASSEMBLE · STEP ${i + 1}</div>
         </div>
-        ${step.photoDataUrl ? `<div class="step-img-area"><img src="${step.photoDataUrl}" alt="Step ${displayNum}" /></div>` : `<div class="step-img-area"><div class="step-img-placeholder">🖼️</div></div>`}
-        <div class="step-body">
-          ${step.aiDescription
-            ? `<div class="ai-badge">🤖 AI DESCRIBED</div><div class="step-ai-desc">${escHtml(step.aiDescription)}</div>`
-            : step.aiLoading
-              ? `<div class="ai-loading"><div class="ai-dots"><span></span><span></span><span></span></div> Analyzing with AI...</div>`
-              : `<div class="step-ai-desc placeholder">No AI description yet. Add an API key on the home screen.</div>`
-          }
-          ${isRe && step.reassemblyTip ? `
-            <div class="reassembly-tip">
-              <div class="reassembly-tip-label">✦ REASSEMBLY TIP</div>
-              ${escHtml(step.reassemblyTip)}
-            </div>` : ''}
-          ${step.notes ? `<div class="step-notes">📝 ${escHtml(step.notes)}</div>` : ''}
-        </div>
-        ${!isRe ? `<div class="step-actions"><button class="delete-step-btn" onclick="deleteStep(${originalIndex})">🗑 Remove step</button></div>` : ''}
-      </div>`;
-  }).join('');
+        <div class="step-timestamp">${formatTime(step.timestamp)}</div>
+      </div>
+      ${step.photoDataUrl ? `<div class="step-img-area"><img src="${step.photoDataUrl}" alt="Step ${i+1}" /></div>` : `<div class="step-img-area"><div class="step-img-placeholder">🖼️</div></div>`}
+      <div class="step-body">
+        ${step.aiDescription
+          ? `<div class="ai-badge">🤖 AI DESCRIBED</div><div class="step-ai-desc">${escHtml(step.aiDescription)}</div>`
+          : step.aiLoading
+            ? `<div class="ai-loading"><div class="ai-dots"><span></span><span></span><span></span></div> Analyzing with AI...</div>`
+            : `<div class="step-ai-desc placeholder">No AI description yet. Add an API key on the home screen.</div>`
+        }
+        ${step.notes ? `<div class="step-notes">📝 ${escHtml(step.notes)}</div>` : ''}
+      </div>
+      <div class="step-actions"><button class="delete-step-btn" onclick="deleteStep(${i})">🗑 Remove step</button></div>
+    </div>`
+  ).join('');
 }
 
-function deleteStep(index) {
+// ==================== REASSEMBLY STEP-BY-STEP ====================
+let reCurrentIndex = 0; // index into reversed steps array (0 = first to reinstall)
+let reVerifyTargetIndex = null;
+
+function enterReassembly() {
   const p = getCurrentProject();
-  p.steps.splice(index, 1);
-  saveData();
-  renderSteps();
-  showToast('Step removed');
+  if (!p || !p.steps || p.steps.length === 0) {
+    showToast('No steps to reassemble yet');
+    setMode('disassembly');
+    return;
+  }
+  // Find first incomplete step to start from
+  const reversed = [...p.steps].reverse();
+  const firstIncomplete = reversed.findIndex(s => !s.reDone);
+  reCurrentIndex = firstIncomplete >= 0 ? firstIncomplete : 0;
+  showScreen('reassembly');
+  renderReStep();
 }
 
-function deleteCurrentProject() {
-  if (!confirm('Delete this project and all its steps?')) return;
-  appData.projects = appData.projects.filter(p => p.id !== currentProjectId);
+function exitReassembly() {
+  showScreen('project');
+  document.getElementById('tab-dis').classList.add('active');
+  document.getElementById('tab-re').classList.remove('active');
+  currentMode = 'disassembly';
+  renderSteps();
+}
+
+function renderReStep() {
+  const p = getCurrentProject();
+  const reversed = [...p.steps].reverse(); // reversed = reassembly order
+  const total = reversed.length;
+  const step = reversed[reCurrentIndex];
+  const originalIndex = p.steps.length - 1 - reCurrentIndex;
+  const displayNum = reCurrentIndex + 1;
+  const isDone = !!step.reDone;
+  const verifyPhotos = step.reVerifyPhotos || [];
+
+  // Update header counter
+  document.getElementById('reStepCounter').textContent = `${displayNum} / ${total}`;
+
+  // Update progress
+  const doneCount = p.steps.filter(s => s.reDone).length;
+  const pct = Math.round((doneCount / total) * 100);
+  document.getElementById('reProgressText').textContent = `${doneCount} of ${total} complete`;
+  document.getElementById('reProgressPct').textContent = pct + '%';
+  document.getElementById('reProgressFill').style.width = pct + '%';
+
+  // Build step content
+  const verifyHtml = verifyPhotos.map((url, pi) =>
+    `<img class="re-verify-thumb" src="${url}" onclick="viewRePhoto(${originalIndex},${pi})" />`
+  ).join('');
+
+  document.getElementById('reStepContent').innerHTML = `
+    ${isDone ? `<div class="re-done-banner">✓ Step complete <span style="font-size:11px;font-weight:400;color:rgba(76,175,130,0.7);margin-left:auto;">${formatTime(step.reDoneAt)}</span></div>` : ''}
+    <div class="re-step-label ${isDone ? 'done' : ''}">
+      ${isDone ? '✓ COMPLETE' : '🔄 REASSEMBLE'} · STEP ${displayNum} OF ${total}
+    </div>
+    ${step.photoDataUrl ? `<img class="re-step-img" src="${step.photoDataUrl}" />` : ''}
+    ${step.aiDescription ? `<div class="re-step-desc">${escHtml(step.aiDescription)}</div>` : ''}
+    ${step.reassemblyTip ? `
+      <div class="re-tip-box">
+        <div class="re-tip-label">✦ Reassembly Tip</div>
+        <div class="re-tip-text">${escHtml(step.reassemblyTip)}</div>
+      </div>` : ''}
+    ${step.notes ? `<div class="re-notes-box">📝 ${escHtml(step.notes)}</div>` : ''}
+    <div class="re-verify-section">
+      <div class="re-verify-section-label">Verify Photos (${verifyPhotos.length})</div>
+      <div class="re-verify-thumbs">
+        ${verifyHtml}
+        <label class="re-add-verify-btn" for="reVerifyFileInput" onclick="setReVerifyTarget(${originalIndex})">📷</label>
+      </div>
+    </div>
+  `;
+
+  // Update bottom nav buttons
+  const prevBtn = document.getElementById('rePrevBtn');
+  const nextBtn = document.getElementById('reNextBtn');
+  const mainBtn = document.getElementById('reMainBtn');
+
+  prevBtn.disabled = reCurrentIndex === 0;
+  prevBtn.style.opacity = reCurrentIndex === 0 ? '0.3' : '1';
+  nextBtn.disabled = reCurrentIndex === total - 1;
+  nextBtn.style.opacity = reCurrentIndex === total - 1 ? '0.3' : '1';
+
+  if (isDone) {
+    mainBtn.textContent = '↩ Mark Incomplete';
+    mainBtn.style.background = 'none';
+    mainBtn.style.border = '1px solid rgba(224,82,82,0.4)';
+    mainBtn.style.color = 'var(--red)';
+    mainBtn.style.fontSize = '13px';
+  } else {
+    mainBtn.textContent = '✓ Mark Complete';
+    mainBtn.style.background = 'var(--green)';
+    mainBtn.style.border = 'none';
+    mainBtn.style.color = '#fff';
+    mainBtn.style.fontSize = '15px';
+    mainBtn.style.boxShadow = '0 6px 20px rgba(76,175,130,0.3)';
+  }
+}
+
+function reNav(dir) {
+  const p = getCurrentProject();
+  const total = p.steps.length;
+  reCurrentIndex = Math.max(0, Math.min(total - 1, reCurrentIndex + dir));
+  renderReStep();
+  document.getElementById('reStepContent').scrollTop = 0;
+}
+
+function reMainAction() {
+  const p = getCurrentProject();
+  const reversed = [...p.steps].reverse();
+  const step = reversed[reCurrentIndex];
+  const originalIndex = p.steps.length - 1 - reCurrentIndex;
+
+  if (step.reDone) {
+    // Unmark - instant feedback
+    p.steps[originalIndex].reDone = false;
+    p.steps[originalIndex].reDoneAt = null;
+    saveData();
+    renderReStep();
+    showToast('↩ Marked incomplete');
+    return;
+  }
+
+  // Mark done - warn about missing photo via toast (non-blocking)
+  const hasPhotos = step.reVerifyPhotos && step.reVerifyPhotos.length > 0;
+
+  p.steps[originalIndex].reDone = true;
+  p.steps[originalIndex].reDoneAt = Date.now();
   saveData();
-  goHome();
-  showToast('Project deleted');
+
+  if (!hasPhotos) {
+    showToast('✓ Complete — no verify photo taken');
+  } else {
+    showToast('✓ Step ' + (reCurrentIndex + 1) + ' complete!');
+  }
+
+  // Find next incomplete step
+  const allReversed = [...p.steps].reverse();
+  const nextIncomplete = allReversed.findIndex((s, i) => i > reCurrentIndex && !s.reDone);
+
+  if (nextIncomplete >= 0) {
+    // Flash current step complete then jump immediately
+    renderReStep(); // show the green "complete" state briefly
+    setTimeout(() => {
+      reCurrentIndex = nextIncomplete;
+      renderReStep();
+      document.getElementById('reStepContent').scrollTop = 0;
+    }, 350);
+  } else {
+    // Check if truly ALL done (could have skipped some earlier)
+    const allDone = p.steps.every(s => s.reDone);
+    if (allDone) {
+      renderReStep();
+      setTimeout(() => showCompletion(p), 600);
+    } else {
+      // There are incomplete steps earlier - let user navigate back
+      renderReStep();
+      showToast('No more steps ahead — check earlier steps');
+    }
+  }
+}
+
+function setReVerifyTarget(originalIndex) {
+  reVerifyTargetIndex = originalIndex;
+  const old = document.getElementById('reVerifyFileInput');
+  const fresh = old.cloneNode(true);
+  fresh.addEventListener('change', handleReVerifyPhoto);
+  old.parentNode.replaceChild(fresh, old);
+}
+
+function handleReVerifyPhoto(event) {
+  const file = event.target.files[0];
+  if (!file || reVerifyTargetIndex === null) return;
+  const p = getCurrentProject();
+  const step = p.steps[reVerifyTargetIndex];
+  if (!step) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    if (!step.reVerifyPhotos) step.reVerifyPhotos = [];
+    step.reVerifyPhotos.push(e.target.result);
+    saveData();
+    renderReStep();
+    showToast('Verify photo added ✓');
+  };
+  reader.readAsDataURL(file);
+}
+
+function viewRePhoto(originalIndex, photoIndex) {
+  const p = getCurrentProject();
+  const step = p.steps[originalIndex];
+  if (!step || !step.reVerifyPhotos) return;
+  const win = window.open();
+  win.document.write(`<img src="${step.reVerifyPhotos[photoIndex]}" style="max-width:100%;max-height:100vh;display:block;margin:auto;background:#000">`);
+}
+
+function showCompletion(p) {
+  const steps = p.steps || [];
+  const totalPhotos = steps.reduce((sum, s) => sum + (s.reVerifyPhotos ? s.reVerifyPhotos.length : 0), 0);
+  document.getElementById('completionProjectName').textContent = p.name;
+  document.getElementById('completionStepCount').textContent = steps.length;
+  document.getElementById('completionPhotoCount').textContent = totalPhotos;
+  document.getElementById('completionOverlay').classList.add('open');
+}
+
+function dismissCompletion() {
+  document.getElementById('completionOverlay').classList.remove('open');
 }
 
 // ==================== ADD STEP ====================
@@ -1136,24 +1654,38 @@ function openAddStepModal() {
   pendingPhotoBase64 = null;
   pendingPhotoDataUrl = null;
   document.getElementById('stepNotes').value = '';
-  document.getElementById('fileInput').value = '';
 
+  // Replace file input with a fresh clone so onchange fires reliably every time
+  const oldInput = document.getElementById('fileInput');
+  const newInput = document.createElement('input');
+  newInput.type = 'file';
+  newInput.id = 'fileInput';
+  newInput.accept = 'image/*';
+  newInput.style.display = 'none';
+  newInput.addEventListener('change', handlePhotoSelected);
+  oldInput.parentNode.replaceChild(newInput, oldInput);
+
+  // Reset photo capture area display
   const captureArea = document.getElementById('photoCaptureArea');
+  captureArea.setAttribute('for', 'fileInput');
   captureArea.innerHTML = `
     <div class="capture-hint">📷</div>
     <div class="capture-text">Tap to add photo</div>
-    <div class="capture-sub">Optional — camera or file</div>
+    <div class="capture-sub">Camera or file</div>
   `;
 
+  // Get accurate step count after any previous saves
   const p = getCurrentProject();
-  const stepNum = (p.steps || []).length + 1;
-  document.getElementById('stepModalNumber').textContent = `#${stepNum}`;
+  const stepNum = (p && p.steps ? p.steps.length : 0) + 1;
+  document.getElementById('stepModalNumber').textContent = '#' + stepNum;
 
   document.getElementById('addStepModal').classList.add('open');
 }
 
 function closeAddStepModal() {
   document.getElementById('addStepModal').classList.remove('open');
+  pendingPhotoBase64 = null;
+  pendingPhotoDataUrl = null;
 }
 
 function handlePhotoSelected(event) {
@@ -1179,13 +1711,22 @@ function handlePhotoSelected(event) {
 
 async function saveStep() {
   const p = getCurrentProject();
+  if (!p) { showToast('No active project'); return; }
   const notes = document.getElementById('stepNotes').value.trim();
+
+  // Snapshot photo data into local vars BEFORE clearing pending state
+  const photoDataUrl = pendingPhotoDataUrl || null;
+  const photoBase64 = pendingPhotoBase64 || null;
+
+  // Clear pending immediately so next step starts fresh
+  pendingPhotoBase64 = null;
+  pendingPhotoDataUrl = null;
 
   const step = {
     id: 's_' + Date.now(),
     timestamp: Date.now(),
-    photoDataUrl: pendingPhotoDataUrl || null,
-    photoBase64: pendingPhotoBase64 || null,
+    photoDataUrl: photoDataUrl,
+    photoBase64: photoBase64,
     notes,
     aiDescription: null,
     reassemblyTip: null,
@@ -1197,15 +1738,14 @@ async function saveStep() {
   closeAddStepModal();
   renderSteps();
 
-  // Show confirmation overlay
+  // Show confirmation overlay with correct step number
   showStepSavedOverlay(step, p.steps.length);
 
   // Trigger AI analysis if we have API key and photo
-  if (pendingPhotoBase64 && getApiKey()) {
+  if (photoBase64 && getApiKey()) {
     step.aiLoading = true;
     renderSteps();
     await analyzeStepWithAI(p, step);
-    // Update AI status in overlay if still open
     const overlay = document.getElementById('stepSavedOverlay');
     if (overlay.classList.contains('open')) {
       document.getElementById('stepSavedAiStatus').textContent = step.aiDescription
@@ -1338,8 +1878,16 @@ function formatTime(ts) {
 function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg;
+  // Green style for success messages
+  if (msg.startsWith('✓') || msg.includes('complete') || msg.includes('saved') || msg.includes('added')) {
+    t.classList.add('toast-success');
+  } else {
+    t.classList.remove('toast-success');
+  }
+  t.classList.remove('show');
+  void t.offsetWidth; // force reflow so animation replays
   t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2500);
+  setTimeout(() => t.classList.remove('show'), 2000);
 }
 
 // ==================== INIT ====================
